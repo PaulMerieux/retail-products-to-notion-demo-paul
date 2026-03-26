@@ -92,7 +92,7 @@ def create_page_in_database(p: Dict[str, Any]) -> str:
     }
     r = requests.post(url, headers=notion_headers(), json=body, timeout=30)
     if not r.ok:
-        print(f"❌ Notion error: {r.status_code} — {r.text}")
+        print(f"❌ Notion error: {r.status_code} — {r.text}", flush=True)
     r.raise_for_status()
     return r.json()["id"]
 
