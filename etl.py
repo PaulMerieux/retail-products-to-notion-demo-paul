@@ -71,6 +71,8 @@ def product_to_properties(p: Dict[str, Any]) -> Dict[str, Any]:
       - Thumbnail (URL)
     """
     name = p.get("title") or f"Product {p.get('id')}"
+    thumbnail = p.get("thumbnail") or None
+    brand = p.get("brand") or ""
     return {
         "Name": {"title": [{"text": {"content": name}}]},
         "Product ID": {"number": int(p["id"])},
@@ -78,8 +80,8 @@ def product_to_properties(p: Dict[str, Any]) -> Dict[str, Any]:
         "Stock": {"number": float(p.get("stock", 0))},
         "Rating": {"number": float(p.get("rating", 0))},
         "Category": {"select": {"name": p.get("category", "unknown")}},
-        "Brand": {"rich_text": [{"text": {"content": p.get("brand", "")}}]},
-        "Thumbnail": {"url": p.get("thumbnail", "")},
+        "Brand": {"rich_text": [{"text": {"content": brand}}] if brand else []},
+        "Thumbnail": {"url": thumbnail},
     }
 
 def create_page_in_database(p: Dict[str, Any]) -> str:
@@ -89,6 +91,8 @@ def create_page_in_database(p: Dict[str, Any]) -> str:
         "properties": product_to_properties(p)
     }
     r = requests.post(url, headers=notion_headers(), json=body, timeout=30)
+    if not r.ok:
+        print(f"❌ Notion error: {r.status_code} — {r.text}")
     r.raise_for_status()
     return r.json()["id"]
 
